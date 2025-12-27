@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Kru Pai Classroom · เศษเกินเป็นจำนวนคละ · ซีรีส์ 2 · Red Black Mode</title>
+<style>
+  :root{
+    --bg:#050308;
+    --panel:#170b10;
+    --ink:#ffeef5;
+    --muted:#f598b2;
+    --accent:#ff1744;
+    --accent-soft:#3b0a16;
+    --ok:#ffd54f;
+    --bad:#ff4b5c;
+    --shadow:0 12px 30px rgba(0,0,0,.8);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0;
+    height:100%;
+    font-family:"Prompt",system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:radial-gradient(circle at top,#20000a 0,#050308 55%,#020105 100%);
+    color:var(--ink);
+  }
+
+  header{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:linear-gradient(120deg,#35000a,#0a0105);
+    border-bottom:2px solid rgba(255,60,60,.7);
+    padding:10px 14px;
+    box-shadow:0 6px 20px rgba(0,0,0,.6);
+  }
+  .brand{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    font-size:clamp(17px,5vw,21px);
+    color:#ffe6ea;
+  }
+  .brand span:first-child{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .brand-emoji{font-size:20px;}
+  .badge{
+    font-size:11px;
+    font-weight:900;
+    padding:4px 10px;
+    border-radius:999px;
+    background:#1a050a;
+    color:#ff9dac;
+    border:1px solid rgba(255,90,120,.8);
+    box-shadow:0 0 0 2px rgba(0,0,0,.8);
+  }
+
+  main{
+    max-width:960px;
+    margin:0 auto;
+    padding:16px;
+  }
+
+  .card{
+    background:var(--panel);
+    border-radius:22px;
+    border:1.5px solid #3b151b;
+    box-shadow:var(--shadow);
+    padding:18px;
+    margin:12px 0;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:-40px;
+    background:
+      repeating-linear-gradient(90deg, #2a0b11 0, #2a0b11 1px, transparent 1px, transparent 26px),
+      repeating-linear-gradient(#2a0b11 0, #2a0b11 1px, transparent 1px, transparent 26px),
+      radial-gradient(circle at 0% 0%, rgba(255,75,110,.3), transparent 55%),
+      radial-gradient(circle at 100% 120%, rgba(120,0,32,.6), transparent 55%);
+    opacity:.55;
+    pointer-events:none;
+    z-index:-1;
+  }
+
+  .title{
+    font-size:clamp(22px,6vw,30px);
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color:#ffeef5;
+  }
+  .title-emoji{font-size:26px;}
+  .sub{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+  }
+
+  .row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    margin-top:10px;
+  }
+
+  .input{
+    flex:1;
+    min-width:180px;
+    border-radius:14px;
+    border:1.5px solid rgba(255,80,120,.8);
+    padding:10px 12px;
+    background:#0f060a;
+    color:#ffe6ec;
+    font-weight:800;
+    outline:none;
+  }
+  .input::placeholder{color:#b36c7c;}
+  .input:focus{
+    box-shadow:0 0 0 3px rgba(255,80,120,.6);
+    border-color:var(--accent);
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 10px;
+    border-radius:999px;
+    background:#14060c;
+    border:1.5px solid rgba(255,80,120,.25);
+    font-size:12px;
+    font-weight:800;
+    color:var(--muted);
+  }
+  .pill b{color:#ff748b;}
+  .pill-emoji{font-size:14px;}
+
+  .btn{
+    border:0;
+    border-radius:16px;
+    padding:12px 16px;
+    font-weight:900;
+    cursor:pointer;
+    min-width:150px;
+    font-size:15px;
+    box-shadow:0 10px 24px rgba(0,0,0,.85);
+    transition:transform .08s ease, box-shadow .12s ease, filter .12s ease, background .15s ease;
+  }
+  .btn:active{transform:translateY(1px);box-shadow:0 6px 16px rgba(0,0,0,.9);}
+  .btn.primary{
+    background:linear-gradient(120deg,#ff1744,#ff6f61);
+    color:#fff7fa;
+  }
+  .btn.alt{
+    background:#12060b;
+    border:1.5px solid rgba(255,80,120,.5);
+    color:var(--muted);
+  }
+  .btn.disabled{
+    opacity:.4;
+    pointer-events:none;
+    box-shadow:none;
+  }
+
+  .game-area{
+    margin-top:14px;
+    border-radius:20px;
+    border:1.5px solid rgba(255,80,120,.55);
+    background:#10040a;
+    box-shadow:0 14px 30px rgba(0,0,0,.8);
+    padding:14px;
+  }
+
+  .mission{
+    font-size:14px;
+    font-weight:800;
+    color:#ff9dac;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .mission-emoji{font-size:18px;}
+
+  .fraction-board{
+    margin-top:8px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:12px;
+    border-radius:18px;
+    background:
+      repeating-linear-gradient(90deg, #2a0b11 0, #2a0b11 1px, transparent 1px, transparent 26px),
+      repeating-linear-gradient(#2a0b11 0, #2a0b11 1px, transparent 1px, transparent 26px),
+      radial-gradient(circle at top,#2a0008 0,#0c0206 60%);
+  }
+
+  .question-label{
+    font-size:13px;
+    font-weight:800;
+    color:#ffb3c3;
+    margin-bottom:4px;
+    text-align:center;
+  }
+
+  .given-fraction{
+    font-size:clamp(36px,6.5vw,50px);
+    font-weight:900;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    color:#ffeef5;
+  }
+  .given-frac-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    font-size:inherit;
+  }
+  .given-num, .given-den{
+    display:block;
+    text-align:center;
+    min-width:50px;
+  }
+  .given-bar{
+    width:64px;
+    height:3px;
+    background:#ff4d6a;
+    border-radius:999px;
+    margin:3px 0;
+  }
+
+  .arrow{
+    font-size:clamp(24px,5.5vw,30px);
+  }
+
+  .answer-frac{
+    margin-top:4px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+  .answer-frac-label{
+    font-size:13px;
+    color:#ffb3c3;
+    font-weight:800;
+  }
+
+  .mixed-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin:6px 0 10px;
+  }
+  .mixed-whole-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+  }
+  .mixed-label{
+    font-size:11px;
+    color:#ff9dac;
+    font-weight:700;
+  }
+
+  .frac-input-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+  }
+
+  .frac-input{
+    width:80px;
+    max-width:26vw;
+    height:46px;
+    border-radius:14px;
+    border:3px solid #ff1744;
+    background:#19030a;
+    text-align:center;
+    font-size:clamp(22px,5.8vw,28px);
+    font-weight:900;
+    color:#ffe6ee;
+    outline:none;
+    box-shadow:0 0 10px rgba(255,40,90,.45);
+  }
+  #ansWhole{
+    width:70px;
+    max-width:24vw;
+  }
+  .frac-input.active{
+    border-color:#ff6b81;
+    box-shadow:0 0 0 3px rgba(255,120,160,.9);
+  }
+  .frac-input[readonly]{
+    caret-color:transparent;
+  }
+
+  .frac-bar{
+    width:90px;
+    max-width:32vw;
+    height:3px;
+    background:#ff4d6a;
+    border-radius:999px;
+  }
+
+  .numpad{
+    margin-top:4px;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:6px;
+    max-width:280px;
+  }
+  .numpad-btn{
+    border-radius:14px;
+    border:1.5px solid rgba(255,80,120,.65);
+    background:#240711;
+    padding:8px 0;
+    font-size:18px;
+    font-weight:900;
+    color:#ffd5dd;
+    text-align:center;
+    cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,.7);
+    user-select:none;
+  }
+  .numpad-btn.fn{
+    font-size:13px;
+    color:#ff9dac;
+    background:#300817;
+  }
+  .numpad-btn:active{
+    transform:translateY(1px);
+    box-shadow:0 2px 6px rgba(0,0,0,.9);
+  }
+
+  .status-text{
+    margin-top:8px;
+    font-size:13px;
+    min-height:22px;
+    text-align:center;
+  }
+  .status-text.ok{color:var(--ok);font-weight:800;}
+  .status-text.bad{color:var(--bad);font-weight:800;}
+
+  .footer-nav{
+    margin-top:12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .footer-nav .btn{flex:1;}
+
+  .center{text-align:center;}
+  .big{
+    font-size:clamp(24px,7vw,36px);
+    font-weight:900;
+  }
+  .big-emoji{
+    font-size:30px;
+    display:block;
+    margin-bottom:6px;
+  }
+  .hidden{display:none!important;}
+
+  .glitter{
+    position:fixed;
+    pointer-events:none;
+    font-size:22px;
+    animation:glitterPop 900ms ease-out forwards;
+    filter:drop-shadow(0 0 6px rgba(255,130,155,.9));
+    z-index:9999;
+  }
+  @keyframes glitterPop{
+    0%{transform:translateY(0) scale(.9);opacity:1;}
+    100%{transform:translateY(-50px) scale(1.2);opacity:0;}
+  }
+
+  .shake{
+    animation:shake 0.35s ease-out;
+  }
+  @keyframes shake{
+    0%{transform:translateX(0);}
+    25%{transform:translateX(-4px);}
+    50%{transform:translateX(4px);}
+    75%{transform:translateX(-3px);}
+    100%{transform:translateX(0);}
+  }
+
+  .pulse{
+    animation:pulse 0.5s ease-out;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.06);}
+    100%{transform:scale(1);}
+  }
+
+  @media (min-width:1024px){
+    body{font-size:18px;}
+    .frac-input{
+      width:95px;
+      height:52px;
+      font-size:30px;
+    }
+    #ansWhole{
+      width:80px;
+    }
+    .frac-bar{
+      width:110px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span>
+      <span class="brand-emoji">➗</span>
+      Kru Pai Classroom · เศษเกินเป็นจำนวนคละ
+    </span>
+    <span class="badge">Series 2 · Improper → Mixed · 25 ข้อ · Red Black Mode 🔥</span>
+  </div>
+</header>
+
+<main>
+  <!-- หน้าเริ่ม -->
+  <section id="startScreen" class="card">
+    <div class="title">
+      <span class="title-emoji">🔥</span>
+      เกมเศษเกินเป็นจำนวนคละ · ซีรีส์ 2 (25 ข้อ)
+    </div>
+    <p class="sub">
+      ซีรีส์ 2 ใช้ต่อจากชุดแรก ตัวเลขจะหลากหลายมากขึ้น มีทั้งตัวที่ลดรูปได้ และตัวที่เป็นเศษส่วนอย่างต่ำอยู่แล้ว  
+      เหมาะสำหรับเด็กที่เริ่มคล่องเรื่องการหารเอาจำนวนเต็มกับเศษ ✍️<br><br>
+      <b>กติกา:</b><br>
+      • ตอบถูกตั้งแต่ครั้งที่ 1 ➜ <b>+2 คะแนน</b><br>
+      • ตอบผิด 1 ครั้ง แล้วตอบถูก ➜ <b>+1 คะแนน</b><br>
+      • ผิดครบ 3 ครั้ง ➜ กดดูเฉลยได้ (ข้อนั้นไม่บวกคะแนน) <br>
+      • ทั้งหมดมี <b>25 ข้อ</b> ใช้เป็นด่านฝึกก่อนสอบจริงเรื่องเศษเกิน–จำนวนคละ ❤️‍🔥
+    </p>
+    <div class="row">
+      <input id="playerName" class="input" placeholder="ใส่ชื่อเล่นของผู้เล่น เช่น Pond, Dear, Nam 🧑‍🎓">
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button id="btnStart" class="btn primary">เริ่มซีรีส์ 2 ข้อที่ 1/25 ▶</button>
+    </div>
+  </section>
+
+  <!-- หน้าเกม -->
+  <section id="gameScreen" class="card hidden">
+    <div class="row">
+      <span class="pill"><span class="pill-emoji">👧</span>ผู้เล่น: <b id="displayName">-</b></span>
+      <span class="pill"><span class="pill-emoji">📌</span>ข้อ: <b id="qIndex">1 / 25</b></span>
+      <span class="pill"><span class="pill-emoji">⭐</span>คะแนน: <b id="score">0</b></span>
+      <span class="pill"><span class="pill-emoji">✅</span>ถูก: <b id="correctCount">0</b></span>
+      <span class="pill"><span class="pill-emoji">❌</span>พลาด: <b id="wrongCount">0</b></span>
+    </div>
+
+    <div class="game-area">
+      <div class="mission">
+        <span class="mission-emoji">🧮</span>
+        <span>เปลี่ยน “เศษเกิน” ให้เป็น “จำนวนคละ” แบบ จำนวนเต็ม + เศษส่วนอย่างต่ำ แล้วเติมคำตอบลงในช่องให้ถูกต้อง</span>
+      </div>
+
+      <div class="fraction-board" id="board">
+        <div class="question-label" id="questionLabel">
+          ข้อที่ 1: จงเขียนเศษเกินต่อไปนี้ให้อยู่ในรูปจำนวนคละ
+        </div>
+
+        <div class="given-fraction">
+          <div class="given-frac-box">
+            <span class="given-num" id="givenNum">13</span>
+            <span class="given-bar"></span>
+            <span class="given-den" id="givenDen">3</span>
+          </div>
+          <span class="arrow">→</span>
+          <div class="given-frac-box">
+            <span class="given-num">?</span>
+            <span class="given-bar"></span>
+            <span class="given-den">?</span>
+          </div>
+        </div>
+
+        <div class="answer-frac">
+          <div class="answer-frac-label">แตะช่องที่ต้องการ แล้วจิ้มตัวเลขจากแป้นด้านล่าง ✍️ (จำนวนเต็ม + เศษ/ส่วน)</div>
+
+          <div class="mixed-wrap">
+            <div class="mixed-whole-wrap">
+              <span class="mixed-label">จำนวนเต็ม</span>
+              <input type="text" id="ansWhole" class="frac-input" readonly>
+            </div>
+            <div class="frac-input-wrap">
+              <span class="mixed-label">เศษ</span>
+              <input type="text" id="ansNum" class="frac-input" readonly>
+              <div class="frac-bar"></div>
+              <span class="mixed-label">ส่วน</span>
+              <input type="text" id="ansDen" class="frac-input" readonly>
+            </div>
+          </div>
+
+          <!-- แป้นตัวเลข 4 ปุ่มต่อแถว -->
+          <div class="numpad" id="numpad">
+            <div class="numpad-btn" data-key="7">7</div>
+            <div class="numpad-btn" data-key="8">8</div>
+            <div class="numpad-btn" data-key="9">9</div>
+            <div class="numpad-btn fn" data-key="del">⌫</div>
+
+            <div class="numpad-btn" data-key="4">4</div>
+            <div class="numpad-btn" data-key="5">5</div>
+            <div class="numpad-btn" data-key="6">6</div>
+            <div class="numpad-btn fn" data-key="clear">ลบหมด</div>
+
+            <div class="numpad-btn" data-key="1">1</div>
+            <div class="numpad-btn" data-key="2">2</div>
+            <div class="numpad-btn" data-key="3">3</div>
+            <div class="numpad-btn" data-key="0">0</div>
+          </div>
+        </div>
+
+        <div class="status-text" id="status"></div>
+      </div>
+
+      <div class="footer-nav">
+        <button id="btnCheck" class="btn primary">ตรวจคำตอบ ✅</button>
+        <button id="btnShowAns" class="btn alt disabled">ดูเฉลย 👀</button>
+        <button id="btnNext" class="btn alt disabled">ข้อถัดไป ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- หน้าสรุป -->
+  <section id="summaryScreen" class="card hidden center">
+    <div class="title">
+      <span class="title-emoji">🏁</span>
+      สรุปผลเกมเศษเกินเป็นจำนวนคละ · ซีรีส์ 2
+    </div>
+    <div class="big">
+      <span class="big-emoji" id="sumEmoji">🎉</span>
+      <span id="sumScore">0 / 50 คะแนน</span>
+    </div>
+    <p class="sub" id="sumDetail"></p>
+    <p class="sub" id="sumComment"></p>
+    <div class="footer-nav">
+      <button id="btnReplay" class="btn primary">เล่นซีรีส์ 2 อีกครั้ง 🔁</button>
+      <button id="btnBackHome" class="btn alt">กลับหน้าแรก 🏡</button>
+    </div>
+  </section>
+</main>
+
+<script>
+let audioCtx;
+function beep(freq=760, dur=0.08, type="sine", gain=0.04){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    setTimeout(()=>{o.stop(); o.disconnect(); g.disconnect();}, dur*1000);
+  }catch(e){}
+}
+function okSound(){
+  beep(1040,0.07,"triangle",0.06);
+  setTimeout(()=>beep(1500,0.09,"triangle",0.05),90);
+}
+function badSound(){
+  beep(250,0.16,"sawtooth",0.07);
+}
+
+function glitter(x,y,good=true){
+  const g = document.createElement("div");
+  g.className = "glitter";
+  g.textContent = good ? "✨" : "💥";
+  g.style.left = (x-10) + "px";
+  g.style.top = (y-10) + "px";
+  document.body.appendChild(g);
+  setTimeout(()=>g.remove(), 900);
+}
+
+function gcd(a,b){
+  a = Math.abs(a); b = Math.abs(b);
+  while(b !== 0){
+    const t = b;
+    b = a % b;
+    a = t;
+  }
+  return a || 1;
+}
+
+const $ = id => document.getElementById(id);
+
+const E = {
+  start: $("startScreen"),
+  game: $("gameScreen"),
+  summary: $("summaryScreen"),
+  nameInput: $("playerName"),
+  btnStart: $("btnStart"),
+  displayName: $("displayName"),
+  qIndex: $("qIndex"),
+  score: $("score"),
+  correctCount: $("correctCount"),
+  wrongCount: $("wrongCount"),
+  givenNum: $("givenNum"),
+  givenDen: $("givenDen"),
+  questionLabel: $("questionLabel"),
+  ansWhole: $("ansWhole"),
+  ansNum: $("ansNum"),
+  ansDen: $("ansDen"),
+  status: $("status"),
+  board: $("board"),
+  btnCheck: $("btnCheck"),
+  btnShowAns: $("btnShowAns"),
+  btnNext: $("btnNext"),
+  sumEmoji: $("sumEmoji"),
+  sumScore: $("sumScore"),
+  sumDetail: $("sumDetail"),
+  sumComment: $("sumComment"),
+  btnReplay: $("btnReplay"),
+  btnBackHome: $("btnBackHome"),
+  numpad: $("numpad")
+};
+
+/* 25 ข้อ – ซีรีส์ 2 เศษเกินเป็นจำนวนคละ */
+const QUESTIONS = [
+  {n:13,d:3},
+  {n:16,d:3},
+  {n:19,d:3},
+  {n:22,d:3},
+
+  {n:9,d:4},
+  {n:14,d:4},
+  {n:17,d:4},
+  {n:21,d:4},
+
+  {n:11,d:5},
+  {n:16,d:5},
+  {n:23,d:5},
+  {n:27,d:5},
+
+  {n:20,d:6},
+  {n:25,d:6},
+  {n:31,d:6},
+  {n:35,d:6},
+
+  {n:19,d:7},
+  {n:24,d:7},
+  {n:29,d:7},
+  {n:33,d:7},
+
+  {n:17,d:8},
+  {n:21,d:8},
+  {n:26,d:8},
+
+  {n:32,d:9},
+  {n:35,d:9}
+];
+
+let currentIndex = 0;
+let score = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let attempts = 0;
+let answered = false;
+
+let activeInput = null;
+function setActiveInput(el){
+  if(activeInput === el) return;
+  [E.ansWhole, E.ansNum, E.ansDen].forEach(inp=>inp.classList.remove("active"));
+  activeInput = el;
+  if(activeInput){
+    activeInput.classList.add("active");
+  }
+}
+
+function loadQuestion(){
+  const q = QUESTIONS[currentIndex];
+  const qNo = currentIndex + 1;
+  E.qIndex.textContent = qNo + " / " + QUESTIONS.length;
+  E.questionLabel.textContent = "ข้อที่ " + qNo + ": จงเขียน " + q.n + "/" + q.d + " ให้อยู่ในรูปจำนวนคละ";
+  E.givenNum.textContent = q.n;
+  E.givenDen.textContent = q.d;
+
+  E.ansWhole.value = "";
+  E.ansNum.value = "";
+  E.ansDen.value = "";
+  E.ansWhole.disabled = false;
+  E.ansNum.disabled = false;
+  E.ansDen.disabled = false;
+  attempts = 0;
+  answered = false;
+  E.status.textContent = "";
+  E.status.className = "status-text";
+
+  E.btnCheck.classList.remove("disabled");
+  E.btnShowAns.classList.add("disabled");
+  E.btnNext.classList.add("disabled");
+
+  E.board.classList.remove("shake","pulse");
+  setTimeout(()=>{
+    E.board.classList.add("pulse");
+    setTimeout(()=>E.board.classList.remove("pulse"), 500);
+  },30);
+
+  setActiveInput(E.ansWhole);
+}
+
+function checkAnswer(evt){
+  if(E.btnCheck.classList.contains("disabled")) return;
+  const rect = evt && evt.clientX ? {x:evt.clientX,y:evt.clientY} : null;
+
+  let w = parseInt(E.ansWhole.value,10);
+  let n = parseInt(E.ansNum.value,10);
+  let d = parseInt(E.ansDen.value,10);
+
+  if(isNaN(w) || isNaN(n) || isNaN(d)){
+    E.status.textContent = "กรอกจำนวนเต็ม เศษ และส่วนให้ครบก่อนนะ 😊";
+    E.status.className = "status-text bad";
+    E.board.classList.add("shake");
+    setTimeout(()=>E.board.classList.remove("shake"),360);
+    badSound();
+    return;
+  }
+  if(d === 0){
+    E.status.textContent = "ส่วนต้องไม่เป็นศูนย์นะ ลองแก้ใหม่อีกครั้ง ✨";
+    E.status.className = "status-text bad";
+    E.board.classList.add("shake");
+    setTimeout(()=>E.board.classList.remove("shake"),360);
+    badSound();
+    return;
+  }
+  if(n >= d){
+    E.status.textContent = "ในรูปจำนวนคละ เศษต้องน้อยกว่าส่วน เช่น 2 1/3 ไม่ใช่ 2 4/3 นะจ๊ะ 🌱";
+    E.status.className = "status-text bad";
+    E.board.classList.add("shake");
+    setTimeout(()=>E.board.classList.remove("shake"),360);
+    badSound();
+    return;
+  }
+
+  attempts++;
+
+  const q = QUESTIONS[currentIndex];
+  const totalUser = w*d + n;
+  const left = totalUser * q.d;
+  const right = q.n * d;
+
+  if(left !== right){
+    wrongCount++;
+    E.wrongCount.textContent = wrongCount;
+    E.status.textContent = attempts === 1
+      ? "ยังไม่เท่ากับ " + q.n + "/" + q.d + " ลองทบทวนการหารเอาจำนวนเต็มกับเศษอีกนิดนะ ❤️"
+      : "ยังไม่พอดีกับ " + q.n + "/" + q.d + " ลองคิดช้า ๆ ทีละขั้นอีกครั้งจ้า ✨";
+    E.status.className = "status-text bad";
+    E.board.classList.add("shake");
+    setTimeout(()=>E.board.classList.remove("shake"),360);
+    badSound();
+  }else{
+    const g = gcd(n,d);
+    if(g !== 1){
+      wrongCount++;
+      E.wrongCount.textContent = wrongCount;
+      E.status.textContent =
+        "ค่าเท่ากันแล้ว แต่เศษ/ส่วนยังไม่เป็นรูปอย่างต่ำ ลองหารทั้งเศษและส่วนด้วยตัวเดียวกันให้ง่ายลงอีกหน่อยนะ 🌿";
+      E.status.className = "status-text bad";
+      E.board.classList.add("shake");
+      setTimeout(()=>E.board.classList.remove("shake"),360);
+      badSound();
+    }else{
+      let addScore = 0;
+      if(attempts === 1) addScore = 2;
+      else if(attempts === 2) addScore = 1;
+
+      score += addScore;
+      correctCount++;
+      E.score.textContent = score;
+      E.correctCount.textContent = correctCount;
+
+      E.status.textContent = addScore === 2
+        ? "สุดยอด! แปลงเศษเกินเป็นจำนวนคละถูกตั้งแต่ครั้งแรก ได้ +2 คะแนน ✨"
+        : (addScore === 1
+            ? "ถูกต้องจ้า! รอบนี้ได้ +1 คะแนน ซีรีส์ 2 เริ่มอยู่หมัดแล้ว 🌟"
+            : "ถูกแล้ว! แม้ข้อนี้จะไม่บวกคะแนนเพิ่ม แต่ถือว่าคุมเรื่องนี้ได้ดีมาก 💚");
+      E.status.className = "status-text ok";
+
+      E.ansWhole.disabled = true;
+      E.ansNum.disabled = true;
+      E.ansDen.disabled = true;
+      E.btnCheck.classList.add("disabled");
+      E.btnNext.classList.remove("disabled");
+      answered = true;
+
+      okSound();
+      const x = rect ? rect.x : window.innerWidth/2;
+      const y = rect ? rect.y : window.innerHeight/2;
+      glitter(x,y,true);
+
+      E.board.classList.add("pulse");
+      setTimeout(()=>E.board.classList.remove("pulse"),500);
+    }
+  }
+
+  if(!answered && attempts >= 3){
+    E.btnShowAns.classList.remove("disabled");
+    E.status.textContent += " (ถ้าไม่ไหวกดดูเฉลยได้เลย 👀)";
+  }
+}
+
+function showAnswer(){
+  if(E.btnShowAns.classList.contains("disabled")) return;
+
+  const q = QUESTIONS[currentIndex];
+  const whole = Math.floor(q.n / q.d);
+  let rem = q.n % q.d;
+  const g = gcd(rem, q.d);
+  const sn = rem / g;
+  const sd = q.d / g;
+
+  E.ansWhole.value = whole;
+  E.ansNum.value = sn;
+  E.ansDen.value = sd;
+  E.ansWhole.disabled = true;
+  E.ansNum.disabled = true;
+  E.ansDen.disabled = true;
+
+  E.status.textContent = "เฉลย: " + q.n + "/" + q.d + " = " + whole + " " + sn + "/" + sd + " ✨";
+  E.status.className = "status-text ok";
+
+  E.btnCheck.classList.add("disabled");
+  E.btnShowAns.classList.add("disabled");
+  E.btnNext.classList.remove("disabled");
+
+  okSound();
+  glitter(window.innerWidth/2, window.innerHeight/2, true);
+}
+
+function nextQuestion(){
+  if(E.btnNext.classList.contains("disabled")) return;
+  if(currentIndex < QUESTIONS.length - 1){
+    currentIndex++;
+    loadQuestion();
+  }else{
+    endGame();
+  }
+}
+
+function endGame(){
+  E.game.classList.add("hidden");
+  E.summary.classList.remove("hidden");
+
+  const maxScore = QUESTIONS.length * 2;
+  E.sumScore.textContent = score + " / " + maxScore + " คะแนน";
+
+  const name = (E.displayName.textContent || "นักเรียน").trim();
+  E.sumDetail.textContent =
+    "ผู้เล่น: " + name + " · ตอบถูก " + correctCount + " ข้อ · รวมพลาด " + wrongCount + " ครั้ง";
+
+  let comment = "";
+  let emoji = "🎉";
+  const ratio = score / maxScore;
+
+  if(ratio >= 0.85){
+    comment = "ซีรีส์ 2 โหมดแดงดำ เอาอยู่สบายมาก! พร้อมลุยโจทย์สอบจริงเรื่องเศษเกิน–จำนวนคละแล้ว 🏆";
+    emoji = "🏆";
+  }else if(ratio >= 0.6){
+    comment = "เก่งมาก! ถ้าเล่นซ้ำอีก 1–2 รอบ รับรองว่าเลขแนวนี้กลายเป็นเรื่องง่ายไปเลย 🌟";
+    emoji = "⭐";
+  }else if(ratio >= 0.3){
+    comment = "ดีมากแล้วสำหรับซีรีส์ 2 ลองกลับไปทบทวนซีรีส์แรกควบคู่กัน แล้วค่อยกลับมาลุยซีรีส์นี้อีกครั้งนะ 🌱";
+    emoji = "😊";
+  }else{
+    comment = "ไม่เป็นไรเลย โหมดนี้ตั้งใจให้เป็นด่านฝึกโหด ลองแบ่งเล่นทีละ 10–15 ข้อ แล้วค่อยเก็บครบ 25 ข้อในรอบถัดไปนะ 💪";
+    emoji = "💪";
+  }
+
+  E.sumComment.textContent = comment;
+  E.sumEmoji.textContent = emoji;
+}
+
+E.btnStart.addEventListener("click", ()=>{
+  const name = (E.nameInput.value || "Player").trim().slice(0,24);
+  E.displayName.textContent = name || "Player";
+
+  currentIndex = 0;
+  score = 0;
+  correctCount = 0;
+  wrongCount = 0;
+
+  E.score.textContent = "0";
+  E.correctCount.textContent = "0";
+  E.wrongCount.textContent = "0";
+
+  E.start.classList.add("hidden");
+  E.summary.classList.add("hidden");
+  E.game.classList.remove("hidden");
+
+  audioCtx = null;
+  loadQuestion();
+});
+
+E.btnCheck.addEventListener("click", (e)=>checkAnswer(e));
+E.btnShowAns.addEventListener("click", showAnswer);
+E.btnNext.addEventListener("click", nextQuestion);
+
+E.btnReplay.addEventListener("click", ()=>{
+  currentIndex = 0;
+  score = 0;
+  correctCount = 0;
+  wrongCount = 0;
+
+  E.score.textContent = "0";
+  E.correctCount.textContent = "0";
+  E.wrongCount.textContent = "0";
+
+  E.summary.classList.add("hidden");
+  E.game.classList.remove("hidden");
+  loadQuestion();
+});
+
+E.btnBackHome.addEventListener("click", ()=>{
+  E.summary.classList.add("hidden");
+  E.start.classList.remove("hidden");
+});
+
+E.ansWhole.addEventListener("click", ()=>setActiveInput(E.ansWhole));
+E.ansNum.addEventListener("click", ()=>setActiveInput(E.ansNum));
+E.ansDen.addEventListener("click", ()=>setActiveInput(E.ansDen));
+
+if(E.numpad){
+  E.numpad.addEventListener("click", e=>{
+    const btn = e.target.closest(".numpad-btn");
+    if(!btn) return;
+    if(!activeInput || activeInput.disabled) return;
+
+    const key = btn.dataset.key;
+    let val = activeInput.value || "";
+
+    if(key === "del"){
+      activeInput.value = val.slice(0,-1);
+    }else if(key === "clear"){
+      activeInput.value = "";
+    }else{
+      if(val.length >= 3) return;
+      if(val === "0"){
+        activeInput.value = key;
+      }else{
+        activeInput.value = val + key;
+      }
+    }
+  });
+}
+
+setActiveInput(E.ansWhole);
+</script>
+</body>
+</html>
